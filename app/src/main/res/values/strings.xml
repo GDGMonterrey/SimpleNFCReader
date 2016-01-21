@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">"SimpleNFCRead"</string>
+    <string name="write_button">Enviar</string>
+    <string name="hint_text_view">Mensaje para tag NFC</string>
 </resources>
