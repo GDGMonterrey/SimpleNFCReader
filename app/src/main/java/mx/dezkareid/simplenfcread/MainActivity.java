@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         short tnf = ndefRecord.getTnf();
         if (tnf == NdefRecord.TNF_WELL_KNOWN){
             if(Arrays.equals(NdefRecord.RTD_TEXT, ndefRecord.getType())){
-                
+
             }
 
         }
