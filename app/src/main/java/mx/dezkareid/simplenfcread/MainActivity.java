@@ -9,7 +9,8 @@ import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
+import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -75,7 +76,21 @@ public class MainActivity extends AppCompatActivity {
     private void readFromParcelable(Parcelable parcelable) {
         NdefMessage ndefMessage = (NdefMessage) parcelable;
         NdefRecord[] ndefRecords = ndefMessage.getRecords();
-        Log.d("PARCELABLE", ndefRecords.length+"");
+        for (NdefRecord ndefRecord : ndefRecords){
+            readFromNDEFRecord(ndefRecord);
+        }
+
+    }
+
+    private void readFromNDEFRecord(NdefRecord ndefRecord){
+        short tnf = ndefRecord.getTnf();
+        if (tnf == NdefRecord.TNF_WELL_KNOWN){
+            if(Arrays.equals(NdefRecord.RTD_TEXT, ndefRecord.getType())){
+                
+            }
+
+        }
+
     }
 
 }
