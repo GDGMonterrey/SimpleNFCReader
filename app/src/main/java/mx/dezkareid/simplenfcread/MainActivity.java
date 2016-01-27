@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private NdefMessage createMessage(String message){
         NdefRecord ndefRecord = new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], textToByteArray(message));
-        return new NdefMessage(new NdefRecord[]{ ndefRecord});;
+        return new NdefMessage(new NdefRecord[]{ ndefRecord});
     }
 
     private byte[] textToByteArray(String message){
