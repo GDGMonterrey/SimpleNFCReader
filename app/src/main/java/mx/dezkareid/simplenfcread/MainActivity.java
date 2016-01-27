@@ -13,16 +13,18 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
 
     private NfcAdapter adapter;
     private Tag tag;
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         adapter = NfcAdapter.getDefaultAdapter(this);
+        Button enviarMensaje = (Button) findViewById(R.id.send_button);
+        enviarMensaje.setOnClickListener(this);
     }
 
     @Override
@@ -99,8 +103,8 @@ public class MainActivity extends AppCompatActivity {
         if (tnf == NdefRecord.TNF_WELL_KNOWN){
             if(Arrays.equals(NdefRecord.RTD_TEXT, ndefRecord.getType())){
                 String content = getTextFromRecord(ndefRecord);
-                Log.d("PARCELABLE", content);
-                showMessage(content);
+                TextView textView = (TextView) findViewById(R.id.nfc_text);
+                textView.setText(content);
 
             }
 
@@ -122,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showMessage(String message){
-        Toast.makeText(this,message,Toast.LENGTH_LONG);
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
     }
 
     private void writeNFC(String message){
@@ -135,8 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     private NdefMessage createMessage(String message){
         NdefRecord ndefRecord = new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], textToByteArray(message));
-        NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ ndefRecord});
-        return ndefMessage;
+        return new NdefMessage(new NdefRecord[]{ ndefRecord});;
     }
 
     private byte[] textToByteArray(String message){
@@ -195,4 +198,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.send_button: {
+                EditText text = (EditText) findViewById(R.id.message);
+                writeNFC(text.getText().toString());
+            }
+            default:{
+
+            }
+        }
+    }
 }
