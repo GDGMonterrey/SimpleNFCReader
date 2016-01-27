@@ -6,6 +6,9 @@ import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +16,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     private NfcAdapter adapter;
+    private Tag tag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private void handler(Intent intent) {
         String action = intent.getAction();
         if ( NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)) {
+            tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
             extractParcelableInfo(intent.getParcelableArrayExtra(adapter.EXTRA_NDEF_MESSAGES));
         }
     }
@@ -115,4 +124,75 @@ public class MainActivity extends AppCompatActivity {
     private void showMessage(String message){
         Toast.makeText(this,message,Toast.LENGTH_LONG);
     }
+
+    private void writeNFC(String message){
+        NdefMessage ndefMessage = createMessage(message);
+        if(ndefMessage == null){
+            return;
+        }
+        writeMessage(tag, ndefMessage);
+    }
+
+    private NdefMessage createMessage(String message){
+        NdefRecord ndefRecord = new NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, new byte[0], textToByteArray(message));
+        NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ ndefRecord});
+        return ndefMessage;
+    }
+
+    private byte[] textToByteArray(String message){
+        byte[] data = null;
+        try{
+            byte[] language = Locale.getDefault().getLanguage().getBytes("UTF-8");
+            Charset encoding = Charset.forName("UTF-8");
+            final byte[] text = message.getBytes(encoding);
+            int utfBit = 0;
+            char status = (char)(utfBit + language.length);
+            data = new byte[1 + language.length + text.length];
+            data[0] = (byte)status;
+            System.arraycopy(language, 0, data, 1, language.length);
+            System.arraycopy(text, 0, data, 1 + language.length, text.length);
+
+
+        }catch (Exception e){
+            Log.d("ErrorTextoByteArray",e.getMessage());
+        }
+        return data;
+    }
+
+    private void formatTag(Tag tag, NdefMessage message){
+        try {
+            NdefFormatable ndefFormatable = NdefFormatable.get(tag);
+            if(ndefFormatable == null){
+                return;
+            }
+            ndefFormatable.connect();
+            ndefFormatable.format(message);
+            ndefFormatable.close();
+            showMessage("Tag grabada");
+        }catch (Exception e){
+            Log.d("ExceptionFormat", e.getMessage());
+        }
+
+    }
+    private void writeMessage(Tag tag, NdefMessage message){
+        try {
+            if(tag == null){
+                return;
+            }
+
+            Ndef ndef = Ndef.get(tag);
+
+            if (ndef == null){
+                formatTag(tag,message);
+            }else{
+                ndef.connect();
+                ndef.writeNdefMessage(message);
+                ndef.close();
+                showMessage("Tag grabada");
+            }
+        }catch (Exception e){
+
+        }
+    }
+
 }
