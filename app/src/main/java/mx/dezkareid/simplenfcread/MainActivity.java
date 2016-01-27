@@ -3,6 +3,8 @@ package mx.dezkareid.simplenfcread;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -65,6 +67,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void extractParcelableInfo( Parcelable [] parcelables){
-        Log.d("PARCELABLE", parcelables.length + "");
+        for(Parcelable p : parcelables){
+            readFromParcelable(p);
+        }
     }
+
+    private void readFromParcelable(Parcelable parcelable) {
+        NdefMessage ndefMessage = (NdefMessage) parcelable;
+        NdefRecord[] ndefRecords = ndefMessage.getRecords();
+        Log.d("PARCELABLE", ndefRecords.length+"");
+    }
+
 }
